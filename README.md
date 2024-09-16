@@ -1,1 +1,6 @@
-# react-native-offline-solutions
+# React Native Offline Solutions
+
+I tried (almost)all the ways to build an offline working React Native 
+application, so you don't have to. 
+
+Examples are tested on Android only.
