@@ -1,23 +1,21 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
 import React from 'react';
-import {SafeAreaView} from 'react-native';
 import {Provider} from 'react-redux';
-import {Counter} from './Counter.tsx';
 import {store} from './store.ts';
+import {Appbar, PaperProvider} from 'react-native-paper';
+import {TodoScreen} from './features/TodoScreen.tsx';
+import {MockNetworkState} from './components/MockNetworkState.tsx';
 
 function App(): React.JSX.Element {
   return (
-    <SafeAreaView>
-      <Provider store={store}>
-        <Counter />
-      </Provider>
-    </SafeAreaView>
+    <Provider store={store}>
+      <PaperProvider>
+        <Appbar.Header>
+          <Appbar.Content title="Todos" />
+        </Appbar.Header>
+        <MockNetworkState />
+        <TodoScreen />
+      </PaperProvider>
+    </Provider>
   );
 }
 

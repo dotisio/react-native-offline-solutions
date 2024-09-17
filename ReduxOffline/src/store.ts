@@ -1,19 +1,31 @@
-import {configureStore} from '@reduxjs/toolkit';
-import counterReducer from './counterSlice.ts';
+import {configureStore, StoreEnhancer} from '@reduxjs/toolkit';
+import {todosSlice} from './features/todosSlice.ts';
 import {useDispatch, useSelector} from 'react-redux';
+import offlineConfig from '@redux-offline/redux-offline/lib/defaults';
+import {offline} from '@redux-offline/redux-offline';
+
+export let setNetworkState = (_: boolean) => {};
+
+offlineConfig.detectNetwork = cb => {
+  setNetworkState = cb;
+  cb(true);
+};
 
 export const store = configureStore({
   reducer: {
-    counter: counterReducer,
+    todos: todosSlice.reducer,
   },
+  enhancers: getDefaultEnhancers =>
+    getDefaultEnhancers().concat(offline(offlineConfig) as StoreEnhancer),
 });
 
-// Infer the `RootState`,  `AppDispatch`, and `AppStore` types from the store itself
+// used for debugging the demo app
+// @ts-ignore
+global.store = store;
+
 export type RootState = ReturnType<typeof store.getState>;
-// Inferred type: {posts: PostsState, comments: CommentsState, users: UsersState}
 export type AppDispatch = typeof store.dispatch;
 export type AppStore = typeof store;
 
-// Use throughout your app instead of plain `useDispatch` and `useSelector`
 export const useAppDispatch = useDispatch.withTypes<AppDispatch>();
 export const useAppSelector = useSelector.withTypes<RootState>();
