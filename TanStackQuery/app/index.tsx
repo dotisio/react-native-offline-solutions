@@ -5,6 +5,9 @@ import NetInfo from "@react-native-community/netinfo";
 import {TodoScreen} from "@/features/TodoScreen";
 import {PaperProvider} from "react-native-paper";
 import {useEffect} from "react";
+import {PersistQueryClientProvider} from "@tanstack/react-query-persist-client";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import {createAsyncStoragePersister} from "@tanstack/query-async-storage-persister";
 
 function onAppStateChange(status: AppStateStatus) {
     if (Platform.OS !== 'web') {
@@ -20,8 +23,18 @@ onlineManager.setEventListener((setOnline) => {
 
 SplashScreen.hideAsync();
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            gcTime: Infinity,
+        },
+    },
+})
+const asyncStoragePersister = createAsyncStoragePersister({
+    storage: AsyncStorage,
+})
 
+const persisterOptions = {persister: asyncStoragePersister, maxAge: Infinity}
 
 export default function Root() {
     useEffect(() => {
@@ -33,11 +46,11 @@ export default function Root() {
 
 
     return (
-        <QueryClientProvider client={queryClient}>
+        <PersistQueryClientProvider client={queryClient} persistOptions={persisterOptions}>
             <PaperProvider>
                 <TodoScreen/>
             </PaperProvider>
-        </QueryClientProvider>
+        </PersistQueryClientProvider>
 
     );
 }
