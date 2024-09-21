@@ -22,11 +22,16 @@ const queryClient = new QueryClient({
     },
 })
 
-queryClient.setMutationDefaults<unknown, DefaultError, Todo>(['addTodo'], {
-    mutationFn: (newTodo) => {
-        console.log(newTodo)
-        return TodoApi.postTodo(newTodo)
+queryClient.setMutationDefaults(['postTodo'], {
+    mutationFn: TodoApi.postTodo,
+    onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['todos'] })
     },
+})
+
+
+queryClient.setMutationDefaults(['putTodo'], {
+    mutationFn: TodoApi.putTodo,
     onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['todos'] })
     },
@@ -38,24 +43,9 @@ const asyncStoragePersister = createAsyncStoragePersister({
 
 const persisterOptions = {persister: asyncStoragePersister, maxAge: Infinity}
 
-/*
-type SetNetworkState = (isConnected: boolean) => void
-interface IMockNetworkStateContext {
-    setNetworkState: SetNetworkState
-}
-const MockNetworkStateContext = createContext<IMockNetworkStateContext>({setNetworkState: () => {}})
-export const useMockNetworkState = () => {
-    const context = useContext(MockNetworkStateContext);
-
-    return context
-}
-*/
-
 
 export function ApiQueryProvider({children}: PropsWithChildren) {
-
     useEffect(() => {
-        // todo: check if this runs when the app goes into the background
         const subscription = AppState.addEventListener('change', onAppStateChange)
 
         return () => subscription.remove()

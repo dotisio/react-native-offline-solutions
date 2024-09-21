@@ -6,20 +6,12 @@ import {Todo} from "@/models/Todo";
 export const useTodos = () => {
     const queryClient = useQueryClient()
 
-    // Queries
     const query = useQuery({ queryKey: ['todos'], queryFn: TodoApi.getTodos })
 
     const todos = query.data ?? [];
 
-    // Mutations
-    const mutation = useMutation<unknown, DefaultError, Todo>({ mutationKey: ['addTodo'] })
-
-    const putMutation = useMutation({
-        mutationFn: TodoApi.putTodo,
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['todos'] })
-        },
-    })
+    const postMutation = useMutation<unknown, DefaultError, Todo>({ mutationKey: ['postTodo'] })
+    const putMutation = useMutation<unknown, DefaultError, Todo>({ mutationKey: ['putTodo'] })
 
 
     return {
@@ -31,7 +23,7 @@ export const useTodos = () => {
                 isDone: false,
             }
 
-            mutation.mutate(newTodo);
+            postMutation.mutate(newTodo);
         },
         refresh: () => {
             queryClient.invalidateQueries({ queryKey: ['todos'] });
