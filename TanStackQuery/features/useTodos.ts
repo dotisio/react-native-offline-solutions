@@ -29,7 +29,6 @@ export const useTodos = () => {
             queryClient.invalidateQueries({ queryKey: ['todos'] });
         },
         toggle: (id: string) => {
-            console.log(id)
             const preState = todos.find(todo => todo.id === id);
 
             if (!preState) {

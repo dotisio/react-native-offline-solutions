@@ -24,7 +24,18 @@ const queryClient = new QueryClient({
 
 queryClient.setMutationDefaults(['postTodo'], {
     mutationFn: TodoApi.postTodo,
-    onSuccess: () => {
+    onMutate: async (newTodo) => {
+        await queryClient.cancelQueries({ queryKey: ['todos'] })
+
+        const previousTodos = queryClient.getQueryData(['todos'])
+        queryClient.setQueryData(['todos'], (old: Todo[]) => [...old, newTodo])
+
+        return { previousTodos }
+    },
+    onError: (err, newTodo, context) => {
+        queryClient.setQueryData(['todos'], context?.previousTodos as Todo[])
+    },
+    onSettled: () => {
         queryClient.invalidateQueries({ queryKey: ['todos'] })
     },
 })
@@ -32,7 +43,22 @@ queryClient.setMutationDefaults(['postTodo'], {
 
 queryClient.setMutationDefaults(['putTodo'], {
     mutationFn: TodoApi.putTodo,
-    onSuccess: () => {
+    onMutate: async (updatedTodo) => {
+        await queryClient.cancelQueries({ queryKey: ['todos'] })
+
+        const previousTodos = queryClient.getQueryData(['todos'])
+        queryClient.setQueryData(['todos'], (old: Todo[]) => {
+            return old.map(todo => {
+                return todo.id === updatedTodo.id ? updatedTodo : todo;
+            })
+        })
+
+        return { previousTodos }
+    },
+    onError: (err, newTodo, context) => {
+        queryClient.setQueryData(['todos'], context?.previousTodos as Todo[])
+    },
+    onSettled: () => {
         queryClient.invalidateQueries({ queryKey: ['todos'] })
     },
 })
