@@ -8,6 +8,7 @@ import {useEffect} from "react";
 import {PersistQueryClientProvider} from "@tanstack/react-query-persist-client";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {createAsyncStoragePersister} from "@tanstack/query-async-storage-persister";
+import {MockNetworkState} from "@/components/MockNetworkState";
 
 function onAppStateChange(status: AppStateStatus) {
     if (Platform.OS !== 'web') {
@@ -15,11 +16,21 @@ function onAppStateChange(status: AppStateStatus) {
     }
 }
 
+let setNetworkState = (_: boolean) => {}
+
 onlineManager.setEventListener((setOnline) => {
+    setNetworkState = (state: boolean) => {
+        setOnline(state);
+    };
+    return undefined;
+})
+
+
+/*onlineManager.setEventListener((setOnline) => {
     return NetInfo.addEventListener((state) => {
         setOnline(!!state.isConnected)
     })
-})
+})*/
 
 SplashScreen.hideAsync();
 
@@ -48,6 +59,7 @@ export default function Root() {
     return (
         <PersistQueryClientProvider client={queryClient} persistOptions={persisterOptions}>
             <PaperProvider>
+                <MockNetworkState setNetworkState={setNetworkState}/>
                 <TodoScreen/>
             </PaperProvider>
         </PersistQueryClientProvider>
