@@ -1,6 +1,7 @@
-import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
+import {DefaultError, useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {TodoApi} from "@/api/TodoApi";
 import {v4 as uuidv4} from "uuid";
+import {Todo} from "@/models/Todo";
 
 export const useTodos = () => {
     const queryClient = useQueryClient()
@@ -11,12 +12,7 @@ export const useTodos = () => {
     const todos = query.data ?? [];
 
     // Mutations
-    const mutation = useMutation({
-        mutationFn: TodoApi.postTodo,
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['todos'] })
-        },
-    })
+    const mutation = useMutation<unknown, DefaultError, Todo>({ mutationKey: ['addTodo'] })
 
     const putMutation = useMutation({
         mutationFn: TodoApi.putTodo,
